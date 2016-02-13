@@ -80,7 +80,7 @@ data.mat_calls = zeros(numel(a));
 data.files = cell(1,numel(a));
 for ind1=1:numel(a)
     funcion = a(ind1).name;
-    data.files{ind1} = funcion;
+    data.files{ind1} = funcion(1:end-2);
     funcion_shown = 0;
     for ind2=1:numel(a)
         candidato = a(ind2).name;
@@ -130,6 +130,9 @@ for ind1=1:numel(a)
         fclose(fileID);
     end
 end
+data.number_of_calls = sum(data.mat_calls,2);
+data.number_of_times_called = sum(data.mat_calls,1);
+    
 set(handles.listbox1,'string',data.files)
 keyboard
 
