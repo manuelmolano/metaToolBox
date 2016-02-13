@@ -1,0 +1,157 @@
+function varargout = metaToolbox(varargin)
+% METATOOLBOX MATLAB code for metaToolbox.fig
+%      METATOOLBOX, by itself, creates a new METATOOLBOX or raises the existing
+%      singleton*.
+%
+%      H = METATOOLBOX returns the handle to a new METATOOLBOX or the handle to
+%      the existing singleton*.
+%
+%      METATOOLBOX('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in METATOOLBOX.M with the given input arguments.
+%
+%      METATOOLBOX('Property','Value',...) creates a new METATOOLBOX or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before metaToolbox_OpeningFcn gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to metaToolbox_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Edit the above text to modify the response to help metaToolbox
+
+% Last Modified by GUIDE v2.5 13-Feb-2016 16:56:53
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @metaToolbox_OpeningFcn, ...
+                   'gui_OutputFcn',  @metaToolbox_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+
+
+function metaToolbox_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to metaToolbox (see VARARGIN)
+
+% Choose default command line output for metaToolbox
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+
+
+function varargout = metaToolbox_OutputFcn(hObject, eventdata, handles) 
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+function select_folder_Callback(hObject, eventdata, handles)
+global data
+if isfield(data,'main_folder')
+data.main_folder = uigetdir(cd);
+a = dir([carpeta '*.m']);
+
+for ind1=1:numel(a)
+    funcion = a(ind1).name;
+    funcion_shown = 0;
+    for ind2=1:numel(a)
+        candidato = a(ind2).name;
+        [fileID,~] = fopen([carpeta candidato]);
+        d = textscan(fileID,'%s','Delimiter','\n');
+        aux = strfind(d{1},funcion(1:end-2));
+        aux = cellfun(@isempty,aux);
+        
+        if nnz(~aux)>0 && ~isequal(candidato,funcion)
+            lineas = d{1}(~aux);
+            aux1 = strfind(lineas,'%');
+            aux1 = cellfun(@takeFirst,aux1);
+            aux2 = strfind(lineas,funcion(1:end-2));
+            aux2 = cellfun(@takeFirst,aux2);
+            if all(aux1<aux2)
+                continue
+            else
+                lineas(aux1<aux2) = [];
+                aux2(aux1<aux2) = [];
+            end
+            
+            check_point = 1;
+            right_after = aux2+numel(funcion(1:end-2));
+            right_before = aux2-1;
+            for ind_linea=1:numel(right_after)
+                if numel(lineas{ind_linea})>=right_after(ind_linea)
+                    if isempty(strfind(' (@~-=+/*[{;}',lineas{ind_linea}(right_after(ind_linea))))
+                        check_point = 0;
+                    end
+                end
+                 if right_before(ind_linea)>0
+                    if isempty(strfind(' (@~-=+/*[{}',lineas{ind_linea}(right_after(ind_linea))))
+                        check_point = 0;
+                    end
+                end
+            end
+            if check_point
+                if ~funcion_shown
+                    display('oooooooooooooooooooooooooooooooooo')
+                    display(['function: ' funcion ' is called in:'])
+                    funcion_shown = 1;
+                end
+                display(['-------' candidato])
+            end
+        end
+        fclose(fileID);
+    end
+end
+
+
+function first = takeFirst(c)
+if ~isempty(c)
+    first = c(1);
+else
+    first = nan;
+end
+
+
+% --- Executes on selection change in listbox1.
+function listbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to listbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns listbox1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from listbox1
+
+
+% --- Executes during object creation, after setting all properties.
+function listbox1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to listbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
