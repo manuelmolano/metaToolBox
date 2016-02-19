@@ -22,7 +22,7 @@ function varargout = metaToolbox(varargin)
 
 % Edit the above text to modify the response to help metaToolbox
 
-% Last Modified by GUIDE v2.5 13-Feb-2016 16:56:53
+% Last Modified by GUIDE v2.5 19-Feb-2016 19:06:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -146,10 +146,19 @@ end
 
 
 function listbox1_Callback(hObject, eventdata, handles)
-
+global data
+get(handles.listbox1,'value')
+data.mat_calls
 
 
 function listbox1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
